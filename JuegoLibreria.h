@@ -3,13 +3,35 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <conio.h>
-#include <windows.h>
 #include <time.h>
 
-#define MAX_FILA 12 
-#define MAX_COL 120 
+// Declaraciones multiplataforma
+#ifdef _WIN32
+    #include <conio.h>
+    #include <windows.h>
+#else
+    #include <unistd.h>
+    #include <termios.h>
+    #include <fcntl.h>
+
+    // Declaraciones para Linux/macOS
+    int kbhit(void);
+int getch(void);
+#endif
+
+// Función multiplataforma para limpiar pantalla
+void clrscr();
+
+// Función multiplataforma para delay
+void delay(int milliseconds);
+
+// Función multiplataforma para sonido
+void Beep(int freq, int duration);
+
+#define MAX_FILA 12
+#define MAX_COL 120
 #define ENEMY 10
+
 
 /*<--------------------------variables globales-------------------------->*/
 extern char escenario[MAX_FILA][MAX_COL];

@@ -1,5 +1,73 @@
 #include "JuegoLibreria.h"
 
+// Implementación de funciones multiplataforma
+void clrscr() {
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
+}
+
+void delay(int milliseconds) {
+#ifdef _WIN32
+    Sleep(milliseconds);
+#else
+    usleep(milliseconds * 1000);
+#endif
+}
+
+#ifndef _WIN32
+// Implementación de kbhit() para Linux/macOS
+int kbhit(void) {
+    struct termios oldt, newt;
+    int ch;
+    int oldf;
+
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+    oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+    fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+
+    ch = getchar();
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+    fcntl(STDIN_FILENO, F_SETFL, oldf);
+
+    if (ch != EOF) {
+        ungetc(ch, stdin);
+        return 1;
+    }
+
+    return 0;
+}
+
+// Implementación de getch() para Linux/macOS
+int getch(void) {
+    struct termios oldattr, newattr;
+    int ch;
+    tcgetattr(STDIN_FILENO, &oldattr);
+    newattr = oldattr;
+    newattr.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &newattr);
+    ch = getchar();
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);
+    return ch;
+}
+#endif
+
+void Beep(int freq, int duration) {
+#ifdef _WIN32
+    Beep(freq, duration);
+#else
+    system("echo -e '\\a'");
+#endif
+}
+
+/* Resto de tus implementaciones originales... */
+
 /*<-------------------------- Definiciones de las funciones -------------------------->*/
 
 char escenario[MAX_FILA][MAX_COL];
@@ -43,7 +111,7 @@ void mostrarPuntaje() {
 
 /*<-------------------------- mostrarEscenarioConPuntaje -------------------------->*/
 void mostrarEscenarioConPuntaje() {
-    system("cls");  //es de windwos.h y es para limpiar pantalla
+    clrscr();  // Ahora usa nuestra función multiplataforma
     mostrarPuntaje();
     for (int i = 0; i < MAX_FILA; i++) {
         for (int j = 0; j < MAX_COL; j++) {
@@ -157,7 +225,7 @@ void saltar() {
             dibujarPersonaje();
             mostrarEscenarioConPuntaje();
             /*para hacer la animación de salto*/
-            Sleep(100);
+            delay(100);  // Ahora usa nuestra función multiplataforma
         } else {
             break;
         }
@@ -244,7 +312,7 @@ void disparar() {
 
 /*<-------------------------- reproducirSonidoMuerteEnemigo -------------------------->*/
 void reproducirSonidoMuerteEnemigo() {
-    Beep(1000, 200); 
+    Beep(1000, 200);
 }
 
 /*<-------------------------- reproducirSonidoCampana -------------------------->*/
@@ -257,10 +325,10 @@ void animacionMuerteEnemigo(int i) {
     for (int j = 0; j < 3; j++) {
         escenario[enemigos[i].y][enemigos[i].x] = '*';
         mostrarEscenarioConPuntaje();
-        Sleep(200);
+        delay(200);  // Ahora usa nuestra función multiplataforma
         escenario[enemigos[i].y][enemigos[i].x] = ' ';
         mostrarEscenarioConPuntaje();
-        Sleep(200);
+        delay(200);  // Ahora usa nuestra función multiplataforma
     }
 }
 
